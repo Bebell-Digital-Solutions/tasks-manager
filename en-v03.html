@@ -1,1 +1,2004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor de Tareas - Selectores Interactivos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
 
+
+      
+        .custom-image-widget {
+            position: fixed !important;
+            top: 50px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            right: 0px;
+            z-index: 999;
+        }
+        
+        .custom-image {
+            width: 70px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        
+        .custom-image-widget:hover .custom-image {
+            transform: scale(1.2);
+        }
+        
+        .custom-image-widget:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+                
+        
+
+
+
+    
+    
+    /* ===== ESTILOS BASE ===== */
+:root {
+    --primary: #df1783;
+    --secondary: #8338ec;
+    --accent: #ff006e;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --border: #e2e8f0;
+    --column-bg: #f1f5f9;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --radius: 8px;
+}
+
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --border: #334155;
+    --column-bg: #1e293b;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    --primary: #df1783;
+    --secondary: #8338ec;
+    --dark-pink-bg: #8c318f;
+    --accent: #f472b6;
+    --text-light: #94a3b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.app-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== CABECERA ===== */
+.header {
+    background: var(--primary);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    width: 100%;
+}
+
+.header__content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.header__title {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+    animation: slideDown 0.5s ease-out;
+    line-height: 1.2;
+}
+
+.header__subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 400;
+    animation: slideUp 0.5s ease-out 0.2s backwards;
+}
+
+/* ===== ESTADÍSTICAS DE CABECERA - ACTUALIZADO PARA MÓVIL ===== */
+.header__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem 0;
+    margin-top: 1.5rem;
+    animation: fadeIn 0.5s ease-out 0.4s backwards;
+}
+
+.header__stat {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    text-align: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.header__stat-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header__stat-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 1rem;
+    margin: 1rem auto;
+    flex: 1;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    padding: 0 0.5rem;
+}
+
+.column {
+    background: var(--column-bg);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    min-height: 400px;
+    transition: background-color 0.2s;
+    overflow: hidden;
+}
+
+.column.drag-over {
+    background-color: rgba(223, 23, 131, 0.1);
+}
+
+.column__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.column__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 200px;
+    padding: 0.5rem;
+    transition: padding 0.2s;
+}
+
+.task-list.drag-over {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius);
+}
+
+.task {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, opacity 0.2s;
+    cursor: move;
+    user-select: none;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.task.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.task:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow), 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.task__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.task__title {
+    font-weight: 600;
+}
+
+.task__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.task__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.task__date {
+    color: #666;
+}
+
+.task__image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    margin-top: 0.5rem;
+}
+
+.add-task {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-task:hover {
+    background: white;
+    border-color: var(--primary);
+}
+
+
+
+
+
+/* ===== BOTONES FLOTANTES - ACTUALIZADO PARA TOP LAYER ===== */
+.floating-buttons {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+}
+
+
+.help-toggle {
+    width: 40px;
+    height: 40px;
+    margin: 7px;
+    background: white !important;
+    box-shadow: var(--shadow);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    margin: 7px;
+    background: white !important;
+    box-shadow: var(--shadow);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.theme-toggle:hover,
+.help-toggle:hover {
+    transform: scale(1.1);
+}
+
+
+
+
+
+/* ===== MODALES ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal__content {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: var(--radius);
+    width: 95%;
+    max-width: 500px;
+    position: relative;
+    margin: 1rem;
+    transition: all 0.3s ease;
+}
+
+.modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.7rem;
+    cursor: pointer;
+    color: #d275b2;
+}
+
+.task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+}
+
+.picker-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.color-picker {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: none;
+    transition: transform 0.2s;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 2px solid var(--border);
+    border-radius: 50%;
+}
+
+input[type="color"]::-moz-color-swatch {
+    border: 2px solid var(--border);
+    border-radius: 50%;
+}
+
+input[type="color"]:hover {
+    transform: scale(1.1);
+}
+
+.color-picker span {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* ===== PIE DE PÁGINA ===== */
+.footer {
+    margin-top: 20px;
+    padding: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    text-align: center;
+    width: 100%;
+    border-radius: 7px;
+    z-index: 10;
+}
+
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0;
+    flex-wrap: wrap;
+    padding: 0.25rem;
+}
+
+.social-link {
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.social-link:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== ACCIONES DE TAREA ===== */
+.task__actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 1.5rem;
+    display: none;
+    gap: 0.5rem;
+}
+
+.task:hover .task__actions {
+    display: flex;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+
+/* ===== MODALES DE CONFIRMACIÓN ===== */
+.confirmation-check {
+    font-size: 4rem;
+    animation: checkBounce 0.5s ease;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.delete-confirm-btn {
+    background: var(--accent) !important;
+}
+
+
+
+
+
+
+/* ===== MODAL DE AYUDA ===== */
+.help-modal__content {
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.help-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.help-icon {
+    font-size: 2.5rem;
+}
+
+.help-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.help-intro {
+    padding: 1.5rem 1.5rem 0.5rem;
+    color: var(--text);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+}
+
+.help-content {
+    padding: 1.5rem;
+}
+
+.help-section {
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.help-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--border);
+}
+
+.help-section-icon {
+    font-size: 1.7rem;
+}
+
+.help-section h3 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 1.3rem;
+}
+
+.help-section-content {
+    padding: 1.5rem;
+}
+
+.help-section-content p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.help-section-content ul,
+.help-section-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.help-section-content li {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.help-section-content li:last-child {
+    margin-bottom: 0;
+}
+
+.help-section-content strong {
+    color: var(--primary);
+}
+
+.help-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.help-close-btn {
+    min-width: 120px;
+    color: white;
+}
+
+
+
+
+
+/* ===== ESTILOS DE MODO OSCURO ===== */
+[data-theme="dark"] .header {
+    background-image: linear-gradient(to right, var(--primary), var(--dark-pink-bg));
+}
+
+[data-theme="dark"] .add-task {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--border);
+    color: var(--text-light);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .add-task:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary);
+    color: var(--text);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .task {
+    background: rgba(30, 41, 59, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2),
+        0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .task:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+        0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    background: rgba(30, 41, 59, 0.9);
+}
+
+[data-theme="dark"] .task::after {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .modal__content {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea {
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(223, 23, 131, 0.2);
+}
+
+[data-theme="dark"] .task__date {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .task-list.drag-over {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .theme-toggle {
+    background: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+    transform: scale(1.1) !important;
+}
+
+[data-theme="dark"] .header__stat {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .btn {
+    background: var(--primary);
+    color: var(--text);
+}
+
+[data-theme="dark"] .btn:hover {
+    background: var(--secondary);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .modal__close {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .modal__close:hover {
+    color: var(--text);
+}
+
+[data-theme="dark"] .action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .footer {
+    background: rgba(30, 41, 59, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .social-link {
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .social-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+
+
+[data-theme="dark"] .help-toggle {
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .help-toggle:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .help-section {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .help-section-header {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+.settings-toggle {
+    width: 40px;
+    height: 40px;
+    margin: 7px;
+    background: white !important;
+    box-shadow: var(--shadow);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.settings-toggle:hover {
+    transform: scale(1.1);
+}
+
+[data-theme="dark"] .settings-toggle {
+    background: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .settings-toggle:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== ANIMACIONES ===== */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes checkBounce {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+
+
+/* ===== AJUSTES RESPONSIVOS ===== */
+@media (max-width: 768px) {
+    .header {
+        padding: 1.5rem 1rem;
+    }
+
+    .header__title {
+        font-size: 2rem;
+    }
+
+    .header__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .header__stat {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .header__stat-value {
+        font-size: 1.1rem;
+    }
+
+    .header__stat-label {
+        font-size: 0.75rem;
+    }
+
+    .board {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+
+    .column {
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal__content {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .header__title {
+        font-size: 1.8rem;
+    }
+
+    .header__subtitle {
+        font-size: 1rem;
+    }
+
+    .header__stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+    }
+
+    .header__stat {
+        padding: 0.4rem 0.1rem;
+    }
+
+    .header__stat-value {
+        font-size: 1rem;
+    }
+
+    .header__stat-label {
+        font-size: 0.7rem;
+    }
+
+    .floating-buttons {
+        top: 0.75rem;
+        right: 0.75rem;
+        gap: 8px;
+    }
+
+    .theme-toggle,
+    .help-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+}
+
+.bebell-footer p {
+    align-items: center;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 30px;
+}
+
+.bebell-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.bebell-link:hover {
+    color: #df1783;
+}
+    
+    
+    
+    /* ===== MODAL BUTTON STYLES ===== */
+.modal-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow);
+}
+
+/* Primary button */
+.modal-btn--primary {
+    background: var(--primary);
+    color: white;
+}
+
+.modal-btn--primary:hover {
+    background: #c4126e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(223, 23, 131, 0.3);
+}
+
+/* Secondary button */
+.modal-btn--secondary {
+    background: var(--border);
+    color: var(--text);
+}
+
+.modal-btn--secondary:hover {
+    background: #d1d5db;
+    transform: translateY(-2px);
+}
+
+/* Danger button */
+.modal-btn--danger {
+    background: var(--accent);
+    color: white;
+}
+
+.modal-btn--danger:hover {
+    background: #d9005c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 0, 110, 0.3);
+}
+
+/* Button group for side-by-side buttons */
+.modal-btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: center;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .modal-btn--secondary {
+    background: var(--border);
+    color: var(--text);
+}
+
+[data-theme="dark"] .modal-btn--secondary:hover {
+    background: #334155;
+}
+    
+    </style>
+</head>
+<body>
+
+
+     <div class="custom-image-widget" style="position: relative; display: inline-block;"> <!-- ADD THESE STYLES -->
+    <a href="https://bebell-digital-solutions.github.io/tasks-manager/espanol">
+        <img class="custom-image" 
+             src="https://bucket.mlcdn.com/a/3336/3336910/images/138f14304ea21715dfae64ae5fe1d71b08c2d451.png" 
+             alt="Spanish Translation"
+             style="display: block;"> <!-- Ensure image is block-level -->
+    </a>
+
+</div>
+
+
+
+
+
+
+
+    
+ 
+    <!-- Help modal -->
+    <div class="modal" id="helpModal">
+    
+    
+    
+        <div class="modal__content help-modal__content">
+            <button class="modal__close" onclick="closeHelpModal()">&times;</button>
+            <div class="help-header">
+                <div class="help-icon">📓</div>
+                <h2>User Guide</h2>
+            </div>
+            <p class="help-intro">Welcome to Task Manager! This guide will help you get the most out of this application.</p>
+
+            <div class="help-content">
+                <section class="help-section">
+                    <div class="help-section-header">
+                        <div class="help-section-icon">🎯</div>
+                        <h3>Getting Started</h3>
+                    </div>
+                    <div class="help-section-content">
+                        <p>Task Manager helps you organize your work with a simple kanban board:</p>
+                        <ul>
+                            <li><strong>To Do</strong> - Tasks you haven't started yet</li>
+                            <li><strong>In Progress</strong> - Tasks you're currently working on</li>
+                            <li><strong>Done</strong> - Tasks you've completed</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <div class="help-section-header">
+                        <div class="help-section-icon">➕</div>
+                        <h3>Creating Tasks</h3>
+                    </div>
+                    <div class="help-section-content">
+                        <p>To create a new task:</p>
+                        <ol>
+                            <li>Click the <strong>"+ Add Task"</strong> button in any column</li>
+                            <li>Fill in the task details (title is required)</li>
+                            <li>Customize your task with a deadline, color, and image</li>
+                            <li>Click <strong>"Add Task"</strong> to save</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <div class="help-section-header">
+                        <div class="help-section-icon">🔄</div>
+                        <h3>Managing Tasks</h3>
+                    </div>
+                    <div class="help-section-content">
+                        <p>You can easily manage your tasks with these actions:</p>
+                        <ul>
+                            <li><strong>Move</strong> - Drag and drop tasks between columns to update their status</li>
+                            <li><strong>Edit</strong> - Click the ✏️ icon to modify a task's details</li>
+                            <li><strong>Delete</strong> - Click the 🗑️ icon to remove a task (confirmation required)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <div class="help-section-header">
+                        <div class="help-section-icon">💡</div>
+                        <h3>Pro Tips</h3>
+                    </div>
+                    <div class="help-section-content">
+                        <ul>
+                            <li><strong>Local Storage</strong> - Your tasks are automatically saved in your browser</li>
+                            <li><strong>Dark Mode</strong> - Toggle between light and dark themes with the 🌓 button</li>
+                            <li><strong>Task Stats</strong> - View your progress with the counters at the top of the page</li>
+                            <li><strong>Task Colors</strong> - Use colors to categorize or prioritize your tasks</li>
+                            <li><strong>Images</strong> - Add images to tasks that need visual context</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <div class="help-footer">
+    <button class="modal-btn modal-btn--primary help-close-btn" onclick="closeHelpModal()">
+        <span>👍</span> Got it!
+    </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+<!-- Modal for settings -->
+<div class="modal" id="settingsModal">
+    <div class="modal__content">
+        <button class="modal__close" onclick="closeSettingsModal()">&times;</button>
+        <h2>Settings</h2>
+        
+        <div class="form-group">
+            <label for="headerColorPicker">Header Color</label>
+            <div class="color-picker">
+                <input type="color" id="headerColorPicker" value="#df1783">
+                <span>Choose a color for the header</span>
+            </div>
+            <button class="modal-btn modal-btn--primary" id="applyHeaderColorBtn">
+                <span>🎨</span> Apply Color
+            </button>
+        </div>
+        
+        <div class="form-group" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+            <h3 style="color: var(--accent);">Danger Zone</h3>
+            <p>This will reset all settings and delete all tasks.</p>
+            <button class="modal-btn modal-btn--danger" id="resetAllBtn">
+                <span>⚠️</span> Reset Everything
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal" id="resetConfirmationModal">
+    <div class="modal__content">
+        <button class="modal__close" onclick="closeResetConfirmationModal()">&times;</button>
+        <h3 style="color: var(--accent);">⚠️ Confirm Reset</h3>
+        <p>Are you sure you want to reset everything? This action cannot be undone and will delete all your tasks.</p>
+        <div class="modal-btn-group">
+            <button class="modal-btn modal-btn--secondary" id="cancelResetBtn">
+                Cancel
+            </button>
+            <button class="modal-btn modal-btn--danger" id="confirmResetBtn">
+                <span>♻️</span> Reset Everything
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+  
+
+  
+
+    <header class="header">
+    
+       <button class="theme-toggle" id="themeToggle">🌓</button>
+    <button class="help-toggle" id="helpToggle">⁉️</button>
+<button class="settings-toggle" id="settingsToggle">⚙️</button>
+
+
+      
+      
+    
+        <div class="header__content">
+            <h1 class="header__title">Tasks Manager</h1>
+            <p class="header__subtitle">Organize your work with ease</p>
+            <div class="header__stats">
+                <div class="header__stat">
+                    <div class="header__stat-value" id="totalTasks">0</div>
+                    <div class="header__stat-label">Total Tasks</div>
+                </div>
+                <div class="header__stat">
+                    <div class="header__stat-value" id="completedTasks">0</div>
+                    <div class="header__stat-label">Completed</div>
+                </div>
+                <div class="header__stat">
+                    <div class="header__stat-value" id="inProgressTasks">0</div>
+                    <div class="header__stat-label">In Progress</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+    
+    
+    
+    
+    
+        <div class="board">
+            <div class="column" id="todo">
+                <div class="column__header">
+                    <h2 class="column__title">📝 To Do</h2>
+                    <span class="column__count">0</span>
+                </div>
+                <div class="task-list">
+                    <div class="add-task">+ Add Task</div>
+                </div>
+            </div>
+
+            <div class="column" id="progress">
+                <div class="column__header">
+                    <h2 class="column__title">🔄 In Progress</h2>
+                    <span class="column__count">0</span>
+                </div>
+                <div class="task-list">
+                    <div class="add-task">+ Add Task</div>
+                </div>
+            </div>
+
+            <div class="column" id="done">
+                <div class="column__header">
+                    <h2 class="column__title">✅ Done</h2>
+                    <span class="column__count">0</span>
+                </div>
+                <div class="task-list">
+                    <div class="add-task">+ Add Task</div>
+                </div>
+            </div>
+        </div>
+
+     
+
+
+ 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://bebell-digital-solutions.github.io/checklist-creator" class="social-link"  rel="noopener">
+                <span>☑️</span> Checklist Creator
+            </a>
+            <a href="https://bebell-digital-solutions.github.io/tasks-manager/en-v03" class="social-link"  rel="noopener">
+                <span>🎯</span> Tasks Manager
+            </a>
+            <a href="https://bebell-digital-solutions.github.io/bookmark-page/en-v03" class="social-link"  rel="noopener">
+                <span>🔗</span> Links Manager
+            </a>
+            <a href="https://bebell-digital-solutions.github.io/magic-toolbox-aplicacion" class="social-link"  rel="noopener">
+                <span>🧰</span> Magic Toolbox
+            </a>
+            <a href="mailto:support@bebelldigitalsolutions.com" class="social-link" target="_blank" rel="noopener">
+                <span>📨</span> Technical Support
+            </a>
+        </div>
+    </footer>
+    <div class="bebell-footer">
+        <p>
+            Developed with 💖 by  
+            <a href="https://bebelldigitalsolutions.com" class="bebell-link">
+                Bebell Digital Solutions.
+            </a>.<br>Copyright © 2024 • All rights reserved.</p>
+    </div>
+
+    
+
+    
+
+    <!-- Modal for adding/editing a task -->
+    <div class="modal" id="taskModal">
+        <div class="modal__content">
+            <button class="modal__close" onclick="closeModal()">&times;</button>
+            <h2>New Task</h2>
+            <form class="task-form" id="taskForm">
+                <input type="hidden" id="editTaskId">
+                <input type="hidden" id="columnType">
+                <div class="form-group">
+                    <label for="taskTitle">Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskDeadline">Deadline</label>
+                    <input type="datetime-local" id="taskDeadline">
+                </div>
+                <div class="form-group">
+                    <label>Task Color</label>
+                    <div class="color-picker">
+                        <input type="color" id="taskColor" value="#df1783">
+                        <span>Choose a color for your task</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="taskImage">Image</label>
+                    <input type="file" id="taskImage" accept="image/*">
+                </div>
+<!-- Replace your task form submit button with this -->
+<button type="submit" class="modal-btn modal-btn--primary" style="width: 100%;">
+    <span id="submitBtnIcon">➕</span> <span id="submitBtnText">Add Task</span>
+</button>            </form>
+        </div>
+    </div>
+
+
+
+      
+
+    <!-- Confirmation modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal__content">
+            <div class="confirmation-check">✅</div>
+            <h3>Success!</h3>
+            <p id="confirmationMessage"></p>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal" id="deleteConfirmationModal">
+        <div class="modal__content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this task?</p>
+            <div class="modal-btn-group">
+    <button class="modal-btn modal-btn--secondary" id="cancelDeleteBtn">
+        Cancel
+    </button>
+    <button class="modal-btn modal-btn--danger" id="confirmDeleteBtn">
+        <span>🗑️</span> Delete
+    </button>
+            </div>
+        </div>
+   
+    </div>
+
+
+
+ 
+   
+
+
+        
+
+   <script>
+    // Global variables for delete functions
+    let currentTaskToDelete = null;
+
+    // Function to show confirmation
+    function showConfirmation(message) {
+        const modal = document.getElementById('confirmationModal');
+        const messageElement = document.getElementById('confirmationMessage');
+        if (message.includes('deleted')) {
+            message = 'Task deleted successfully! 🗑️';
+        } else if (message.includes('updated')) {
+            message = 'Task updated successfully! 🎉';
+        } else if (message.includes('created')) {
+            message = 'Task created successfully! 🎉';
+        }
+        messageElement.textContent = message;
+        modal.classList.add('show');
+        setTimeout(() => {
+            modal.classList.remove('show');
+        }, 3000);
+    }
+
+    // Function to close modal
+    function closeModal() {
+        document.getElementById('taskModal').classList.remove('show');
+    }
+
+    function confirmDelete() {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const filteredTasks = tasks.filter(t => t.id !== currentTaskToDelete);
+        localStorage.setItem('tasks', JSON.stringify(filteredTasks));
+        const taskElement = document.querySelector(`[data-task-id="${currentTaskToDelete}"]`);
+        if (taskElement) {
+            taskElement.remove();
+        }
+        document.getElementById('deleteConfirmationModal').classList.remove('show');
+        
+        // Update counters and show confirmation
+        updateAllCounts();
+        showConfirmation('Task deleted successfully! 🗑️');
+        currentTaskToDelete = null;
+    }
+
+    function updateAllCounts() {
+        const columns = ['todo', 'progress', 'done'];
+        columns.forEach(columnType => {
+            const column = document.getElementById(columnType);
+            const tasksInColumn = column.querySelectorAll('.task-list > .task');
+            column.querySelector('.column__count').textContent = tasksInColumn.length;
+        });
+        const totalTasks = document.querySelectorAll('.task').length;
+        const completedTasks = document.querySelector('#done').querySelectorAll('.task').length;
+        const inProgressTasks = document.querySelector('#progress').querySelectorAll('.task').length;
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('completedTasks').textContent = completedTasks;
+        document.getElementById('inProgressTasks').textContent = inProgressTasks;
+    }
+
+    function cancelDelete() {
+        currentTaskToDelete = null;
+        document.getElementById('deleteConfirmationModal').classList.remove('show');
+    }
+
+    function deleteTask(taskId) {
+        currentTaskToDelete = taskId;
+        document.getElementById('deleteConfirmationModal').classList.add('show');
+    }
+
+    // Function to close help modal
+    function closeHelpModal() {
+        document.getElementById('helpModal').classList.remove('show');
+    }
+
+    // Settings modal functions
+    function openSettingsModal() {
+        document.getElementById('settingsModal').classList.add('show');
+    }
+
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('show');
+    }
+
+    function closeResetConfirmationModal() {
+        document.getElementById('resetConfirmationModal').classList.remove('show');
+    }
+
+    // Improved reset functionality
+    function resetAllSettings() {
+        // Clear all tasks from localStorage
+        localStorage.removeItem('tasks');
+        
+        // Reset header color - respects theme
+        localStorage.removeItem('headerColor');
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.querySelector('.header').style.background = 'linear-gradient(to right, var(--primary), var(--dark-pink-bg))';
+        } else {
+            document.querySelector('.header').style.background = 'var(--primary)';
+        }
+        document.getElementById('headerColorPicker').value = '#df1783';
+        
+        // Reset theme to default
+        localStorage.removeItem('theme');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDarkScheme ? 'dark' : 'light');
+        updateThemeIcon(prefersDarkScheme ? 'dark' : 'light');
+        
+        // Reset to default tasks
+        tasks = [
+            {
+                id: "default1",
+                column: "todo",
+                title: "Visit all Bebell Digital Solutions projects",
+                description: "Discover all Bebell Digital Solutions projects and leave a nice comment!",
+                deadline: new Date().toISOString(),
+                color: "#df1783",
+                image: null
+            },
+            {
+                id: "default2",
+                column: "todo",
+                title: "Like and comment on this project",
+                description: "Like and comment on this project to show your appreciation!",
+                deadline: new Date().toISOString(),
+                color: "#df1783",
+                image: null
+            }
+        ];
+        
+        // Save default tasks
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        
+        // Reload tasks display
+        loadTasks();
+        
+        // Show confirmation
+        showConfirmation('All settings have been reset! ♻️');
+    }
+
+    function initHeaderColor() {
+        const savedColor = localStorage.getItem('headerColor');
+        if (savedColor) {
+            document.querySelector('.header').style.background = savedColor;
+            document.getElementById('headerColorPicker').value = savedColor;
+        }
+    }
+
+    function updateThemeIcon(theme) {
+        document.getElementById('themeToggle').textContent = theme === 'dark' ? '🌓' : '🌓';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners for delete buttons
+        document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+        document.getElementById('cancelDeleteBtn').addEventListener('click', cancelDelete);
+        
+        // Theme configuration
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Initialize theme
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else if (prefersDarkScheme.matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            }
+        }
+        
+        // Handle theme change
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        // Initialize theme on load
+        initTheme();
+        initHeaderColor();
+        
+        const modal = document.getElementById('taskModal');
+        const taskForm = document.getElementById('taskForm');
+        const columns = document.querySelectorAll('.column');
+        
+        // Initialize default tasks if none exist
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        if (!tasks || tasks.length === 0) {
+            tasks = [{
+                    id: "default1",
+                    column: "todo",
+                    title: "Visit all Bebell Digital Solutions projects",
+                    description: "Discover all Bebell Digital Solutions projects and leave a nice comment!",
+                    deadline: new Date().toISOString(),
+                    color: "#df1783",
+                    image: null
+                },
+                {
+                    id: "default2",
+                    column: "todo",
+                    title: "Like and comment on this project",
+                    description: "Like and comment on this project to show your appreciation!",
+                    deadline: new Date().toISOString(),
+                    color: "#df1783",
+                    image: null
+                }
+            ];
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Drag and drop configuration for columns
+        columns.forEach(column => {
+            column.addEventListener('dragover', e => {
+                e.preventDefault();
+                const draggingTask = document.querySelector('.dragging');
+                const taskList = column.querySelector('.task-list');
+                const afterElement = getDragAfterElement(taskList, e.clientY);
+                if (afterElement) {
+                    taskList.insertBefore(draggingTask, afterElement);
+                } else {
+                    taskList.appendChild(draggingTask);
+                }
+            });
+            
+            column.addEventListener('drop', e => {
+                e.preventDefault();
+                const taskId = e.dataTransfer.getData('text/plain');
+                const task = tasks.find(t => t.id === taskId);
+                const prevColumn = task.column;
+                task.column = column.id;
+                saveTasks();
+                updateAllCounts();
+                updateColumnCount(prevColumn);
+                const draggingTask = document.querySelector(`[data-task-id="${taskId}"]`);
+                draggingTask.classList.remove('dragging');
+                draggingTask.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    draggingTask.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+        
+        // Function to determine drop position
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.task:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return {
+                        offset: offset,
+                        element: child
+                    };
+                } else {
+                    return closest;
+                }
+            }, {
+                offset: Number.NEGATIVE_INFINITY
+            }).element;
+        }
+        
+        // Form submission
+        taskForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const taskId = this.dataset.editId;
+            if (taskId) {
+                // Get existing DOM element before updating
+                const existingTaskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                let parentColumn = null;
+                if (existingTaskElement) {
+                    parentColumn = existingTaskElement.closest('.column').id;
+                }
+                // Update task in array
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = {
+                        ...tasks[taskIndex],
+                        title: document.getElementById('taskTitle').value,
+                        description: document.getElementById('taskDescription').value,
+                        deadline: document.getElementById('taskDeadline').value,
+                        color: document.getElementById('taskColor').value,
+                        column: document.getElementById('columnType').value
+                    };
+                    // Remove old element only if column changed and element exists
+                    if (existingTaskElement && parentColumn !== tasks[taskIndex].column) {
+                        existingTaskElement.remove();
+                        updateColumnCount(parentColumn);
+                    }
+                    // Update display without reloading all tasks
+                    if (existingTaskElement && parentColumn === tasks[taskIndex].column) {
+                        renderTask(tasks[taskIndex], true); // true for update
+                    } else {
+                        // If element doesn't exist or column changed, re-render
+                        renderTask(tasks[taskIndex]);
+                    }
+                }
+                delete this.dataset.editId;
+            } else {
+                // Create new task
+                await createTask({
+                    columnType: document.getElementById('columnType').value,
+                    title: document.getElementById('taskTitle').value,
+                    description: document.getElementById('taskDescription').value,
+                    deadline: document.getElementById('taskDeadline').value,
+                    color: document.getElementById('taskColor').value,
+                    imageFile: document.getElementById('taskImage').files[0]
+                });
+            }
+            saveTasks();
+            closeModal();
+            showConfirmation(taskId ? 'Task updated successfully! 🎉' : 'Task created successfully! 🎉');
+        });
+        
+        async function createTask(taskData) {
+            const imageBase64 = taskData.imageFile ?
+                await convertImageToBase64(taskData.imageFile) :
+                null;
+            const newTask = {
+                id: Date.now().toString(),
+                ...taskData,
+                column: taskData.columnType,
+                image: imageBase64
+            };
+            tasks.push(newTask);
+            saveTasks();
+            renderTask(newTask);
+        }
+
+        function convertImageToBase64(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            updateAllCounts();
+        }
+
+        function renderTask(task, isUpdate = false) {
+            if (isUpdate) {
+                // Find and update existing element
+                const existingTask = document.querySelector(`[data-task-id="${task.id}"]`);
+                if (existingTask) {
+                    const imageHtml = task.image ?
+                        `<img src="${task.image}" alt="Task image" class="task__image">` : '';
+                    existingTask.innerHTML = `
+                        <div class="task__header">
+                            <h3 class="task__title">${task.title}</h3>
+                            <div class="task__actions">
+                                <button class="action-btn edit-btn">✏️</button>
+                                <button class="action-btn delete-btn">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="task__content">
+                            <p>${task.description}</p>
+                            ${imageHtml}
+                        </div>
+                        <div class="task__footer">
+                            <span class="task__date">📅 ${task.deadline ? new Date(task.deadline).toLocaleDateString() !== 'Invalid Date' ? new Date(task.deadline).toLocaleDateString() : 'No date' : 'No date'}</span>
+                        </div>
+                    `;
+                    existingTask.style.borderLeft = `4px solid ${task.color}`;
+                    // Reattach event listeners
+                    existingTask.querySelector('.edit-btn').addEventListener('click', () => openEditModal(task.id));
+                    existingTask.querySelector('.delete-btn').addEventListener('click', () => deleteTask(task.id));
+                    return;
+                }
+            }
+            
+            const column = document.getElementById(task.column);
+            const taskList = column.querySelector('.task-list');
+            const taskElement = document.createElement('div');
+            taskElement.className = 'task';
+            taskElement.draggable = true;
+            taskElement.dataset.taskId = task.id;
+            taskElement.style.borderLeft = `4px solid ${task.color}`;
+            
+            const imageHtml = task.image ?
+                `<img src="${task.image}" alt="Task image" class="task__image">` : '';
+            
+            taskElement.innerHTML = `
+                <div class="task__header">
+                    <h3 class="task__title">${task.title}</h3>
+                    <div class="task__actions">
+                        <button class="action-btn edit-btn">✏️</button>
+                        <button class="action-btn delete-btn">🗑️</button>
+                    </div>
+                </div>
+                <div class="task__content">
+                    <p>${task.description}</p>
+                    ${imageHtml}
+                </div>
+                <div class="task__footer">
+                    <span class="task__date">📅 ${task.deadline ? new Date(task.deadline).toLocaleDateString() !== 'Invalid Date' ? new Date(task.deadline).toLocaleDateString() : 'No date' : 'No date'}</span>
+                </div>
+            `;
+            
+            taskElement.addEventListener('dragstart', handleDragStart);
+            taskElement.addEventListener('dragend', handleDragEnd);
+            
+            // Add task after "Add Task" button
+            const addTaskButton = taskList.querySelector('.add-task');
+            if (addTaskButton.nextSibling) {
+                taskList.insertBefore(taskElement, addTaskButton.nextSibling);
+            } else {
+                taskList.appendChild(taskElement);
+            }
+            
+            // Save tasks
+            saveTasks();
+            
+            taskElement.querySelector('.edit-btn').addEventListener('click', () => openEditModal(task.id));
+            taskElement.querySelector('.delete-btn').addEventListener('click', () => deleteTask(task.id));
+        }
+
+        function updateColumnCount(columnType) {
+            const column = document.getElementById(columnType);
+            const tasksInColumn = column.querySelectorAll('.task-list > .task');
+            column.querySelector('.column__count').textContent = tasksInColumn.length;
+        }
+
+        function openEditModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const form = document.getElementById('taskForm');
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description;
+            document.getElementById('taskDeadline').value = task.deadline;
+            document.getElementById('taskColor').value = task.color;
+            document.getElementById('columnType').value = task.column;
+            document.getElementById('editTaskId').value = taskId;
+            form.dataset.editId = taskId;
+            
+            // Update button text
+            document.getElementById('submitBtnText').textContent = 'Update Task';
+            document.getElementById('submitBtnIcon').textContent = '✏️';
+            // Update modal title
+            document.querySelector('#taskModal h2').textContent = 'Edit Task';
+            document.getElementById('taskModal').classList.add('show');
+        }
+
+        function openModal(columnType) {
+            document.getElementById('columnType').value = columnType;
+            document.getElementById('taskForm').reset();
+            document.getElementById('editTaskId').value = '';
+            // Reset button text
+            document.getElementById('submitBtnText').textContent = 'Add Task';
+            document.getElementById('submitBtnIcon').textContent = '➕';
+            // Reset modal title
+            document.querySelector('#taskModal h2').textContent = 'New Task';
+            document.getElementById('taskModal').classList.add('show');
+            // Focus title field
+            setTimeout(() => {
+                document.getElementById('taskTitle').focus();
+            }, 100);
+        }
+
+        function loadTasks() {
+            // Clear existing task lists while keeping "Add Task" buttons
+            document.querySelectorAll('.task-list').forEach(taskList => {
+                const addTaskButton = taskList.querySelector('.add-task');
+                taskList.innerHTML = '';
+                taskList.appendChild(addTaskButton);
+            });
+            
+            // Load tasks from localStorage
+            tasks.forEach(task => {
+                renderTask(task);
+            });
+            
+            updateAllCounts();
+        }
+        
+        function handleDragStart(e) {
+            this.classList.add('dragging');
+            this.style.opacity = '0.5';
+            e.dataTransfer.setData('text/plain', this.dataset.taskId);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            this.style.opacity = '1';
+        }
+        
+        // Initialize theme and load tasks
+        initTheme();
+        loadTasks();
+        
+        // Add event listeners for "Add Task" buttons
+        document.querySelectorAll('.add-task').forEach(button => {
+            button.addEventListener('click', function() {
+                const columnType = this.closest('.column').id;
+                openModal(columnType);
+            });
+        });
+        
+        // Add event listener for modal close button
+        document.querySelector('#taskModal .modal__close').addEventListener('click', closeModal);
+
+        // Event listeners for settings functionality
+        document.getElementById('settingsToggle').addEventListener('click', openSettingsModal);
+        document.getElementById('applyHeaderColorBtn').addEventListener('click', function() {
+            const color = document.getElementById('headerColorPicker').value;
+            document.querySelector('.header').style.background = color;
+            localStorage.setItem('headerColor', color);
+            showConfirmation('Header color updated! 🎨');
+            closeSettingsModal();
+        });
+
+        document.getElementById('resetAllBtn').addEventListener('click', function() {
+            document.getElementById('settingsModal').classList.remove('show');
+            document.getElementById('resetConfirmationModal').classList.add('show');
+        });
+
+        document.getElementById('confirmResetBtn').addEventListener('click', function() {
+            resetAllSettings();
+            document.getElementById('resetConfirmationModal').classList.remove('show');
+        });
+
+        document.getElementById('cancelResetBtn').addEventListener('click', cancelDelete);
+        
+        // Add event listener for help button
+        document.getElementById('helpToggle').addEventListener('click', function() {
+            document.getElementById('helpModal').classList.add('show');
+        });
+    });
+
+    // Expose functions globally
+    window.closeHelpModal = closeHelpModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.closeResetConfirmationModal = closeResetConfirmationModal;
+    window.deleteTask = deleteTask;
+
+   
+   </script>
+    
+    
+    
+</body>
+</html>
